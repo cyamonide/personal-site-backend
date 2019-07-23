@@ -1,7 +1,10 @@
 const fs = require("fs");
 const express = require("express");
+const bodyParser = require("body-parser");
 
 const app = express();
+
+app.use(bodyParser.json());
 
 app.get("/documents/resume", (req, res) => {
     const path = __dirname + "/public/documents/resume.pdf";
@@ -15,6 +18,12 @@ app.get("/documents/resume", (req, res) => {
       }
     });
   });
+
+app.post("/webhooks/:repo", (req, res) => {
+  console.log(req.body);
+  console.log(req.params.repo);
+  res.sendStatus(200);
+});
 
 app.get("/", (req, res) => res.send("API endpoint"));
 
