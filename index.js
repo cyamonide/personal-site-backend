@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get("/documents/resume", (req, res) => {
-    const path = __dirname + "/public/documents/resume.pdf";
+    const path = __dirname + "/public/documents/Resume - Simon Liu (Last updated August 1, 2019).pdf";
     fs.readFile(path, (err, data) => {
       if (err) {
         res.send(err.message);
