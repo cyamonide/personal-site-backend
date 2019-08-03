@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get("/documents/resume", (req, res) => {
-  res.redirect("/documents/Resume%20-%20Simon%20Liu");
+  res.redirect(`${process.env.API_URL}/documents/Resume%20-%20Simon%20Liu`);
 });
 
 app.get("/documents/Resume%20-%20Simon%20Liu", (req, res) => {
