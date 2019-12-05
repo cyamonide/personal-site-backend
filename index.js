@@ -2,10 +2,18 @@ const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
 const { exec } = require("child_process");
+const crypto = require('crypto');
+const safeCompare = require('safe-compare');
+const concat = require('concat-stream');
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(function(req, res, next){
+      req.pipe(concat(function(data){
+	      req.body = data;
+	      next();
+	    }));
+});
 
 app.get("/documents/resume", (req, res) => {
   res.redirect(`${process.env.API_URL}/documents/Resume%20-%20Simon%20Liu`);
@@ -25,6 +33,15 @@ app.get("/documents/Resume%20-%20Simon%20Liu", (req, res) => {
   });
 
 app.post("/webhooks/:repo", (req, res) => {
+  const computed = "sha1=" + 
+	crypto.createHmac('sha1', process.env.GIT_WEBHOOKS_SECRET)
+	      .update(req.body)
+	      .digest('hex');
+  const received = req.get("X-Hub-Signature");
+  if (!safeCompare(computed, received)) {
+    res.status(401).send("Incorrect secret.");
+    return;
+  }
   console.log(`Pulling ${req.params.repo}...`);
   exec(`git -C ~/${req.params.repo} pull`, (err, stdout, stderr) => {
     if (err) {
