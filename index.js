@@ -49,6 +49,14 @@ app.post("/webhooks/:repo", (req, res) => {
     } else {
       res.status(200).send(stdout);
     }
+    console.log(`Building ${req.params.repo}...`);
+    exec(`yarn --cwd ../${req.params.repo} build`, (err, stdout, stderr) => {
+      if (err) {
+        console.log(stderr);
+      } else {
+        console.log(stdout);
+      }
+    });
   });
 });
 
