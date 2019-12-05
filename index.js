@@ -1,6 +1,7 @@
 const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
+const { exec } = require("child_process");
 
 const app = express();
 
@@ -24,9 +25,14 @@ app.get("/documents/Resume%20-%20Simon%20Liu", (req, res) => {
   });
 
 app.post("/webhooks/:repo", (req, res) => {
-  console.log(req.body);
-  console.log(req.params.repo);
-  res.sendStatus(200);
+  console.log(`Pulling ${req.params.repo}...`);
+  exec(`git -C ~/${req.params.repo} pull`, (err, stdout, stderr) => {
+    if (err) {
+      res.status(500).send(stderr);
+    } else {
+      res.status(200).send(stdout);
+    }
+  });
 });
 
 app.get("/", (req, res) => res.send("API endpoint"));
