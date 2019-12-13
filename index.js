@@ -5,6 +5,7 @@ const { exec } = require("child_process");
 const crypto = require('crypto');
 const safeCompare = require('safe-compare');
 const concat = require('concat-stream');
+const MongoClient = require('mongodb').MongoClient;
 
 const app = express();
 
@@ -56,6 +57,27 @@ app.post("/webhooks/:repo", (req, res) => {
       } else {
         console.log(stdout);
       }
+    });
+  });
+});
+
+app.get("/resume/:category", (req, res) => {
+  MongoClient.connect('mongodb://localhost:27017/', {useUnifiedTopology: true}, (err, client) => {
+    // catch error if it exists
+    if (err) {
+      console.log(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    // find collection
+    var collection = client.db("resume").collection(req.params.category);
+    
+    collection.find({}).toArray((err, result) => {
+      if (err) throw err;
+      res.header("Content-Type", "application/json");
+      res.status(200).send(JSON.stringify(result, null, 4));
+      client.close();
     });
   });
 });
