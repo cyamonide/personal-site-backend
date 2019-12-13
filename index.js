@@ -119,7 +119,7 @@ app.get("/resume/:category", (req, res) => {
       // find collection
       var collection = client.db("resume").collection(req.params.category);
 
-      collection.find({}).toArray((err, result) => {
+      collection.find({}).sort({"startDate": -1, "year": -1}).toArray((err, result) => {
         if (err) throw err;
         res.header("Content-Type", "application/json");
         res.status(200).send(JSON.stringify(result, null, 4));
