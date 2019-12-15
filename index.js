@@ -50,25 +50,27 @@ app.post("/webhooks/:repo", (req, res) => {
     return;
   }
 
+  const {repo} = req.params;
+
   // Update repository
-  console.log(`Pulling ${req.params.repo}...`);
-  exec(`git -C ~/${req.params.repo} pull`, (err, stdout, stderr) => {
+  console.log(`Pulling ${repo}...`);
+  exec(`git -C ~/${repo} pull`, (err, stdout, stderr) => {
     if (err) {
       res.status(500).send(stderr);
     } else {
       res.status(200).send(stdout);
     }
     // Handle different repositories
-    if (req.params.repo == "personal-site-backend") {
+    if (["personal-site-backend", "course-notes"].indexOf(repo) > -1) {
       // Restart pm2 server
       console.log("Restarting pm2 server...");
-      exec("pm2 restart personal-site-backend", (err, stdout, stderr) => {
+      exec(`pm2 restart ${repo}`, (err, stdout, stderr) => {
         console.log(err ? stderr : stdout);
       });
-    } else if (["personal-site-frontend", "resume"].indexOf(req.params.repo) > -1) {
+    } else if (["personal-site-frontend", "resume"].indexOf(repo) > -1) {
       // Build project
-      console.log(`Building ${req.params.repo}...`);
-      exec(`yarn --cwd ../${req.params.repo} build`, (err, stdout, stderr) => {
+      console.log(`Building ${repo}...`);
+      exec(`yarn --cwd ../${repo} build`, (err, stdout, stderr) => {
         console.log(err ? stderr : stdout);
       });
     }
