@@ -7,7 +7,7 @@ module.exports = {
       args: "index.js",
       env: {
         NODE_ENV: "development",
-        HOME_URL: "http://localhost:3000",
+        HOME_URL: "http://localhost:3002",
         API_URL: "http://localhost:3001",
         NOTES_URL: "http://localhost:3003",
         RESUME_URL: "http://localhost:3004",
