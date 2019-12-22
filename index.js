@@ -18,6 +18,8 @@ app.use(function(req, res, next) {
   );
 });
 
+const mongoUrl = "mongodb://localhost:27017/";
+
 app.get("/documents/resume", (req, res) => {
   res.redirect(`${process.env.API_URL}/documents/Resume%20-%20Simon%20Liu`);
 });
@@ -64,69 +66,67 @@ app.post("/webhooks/:repo", (req, res) => {
   });
 });
 
-/* Overall resume endpoint */
-app.get("/resume", (req, res) => {
-  MongoClient.connect(
-    "mongodb://localhost:27017/",
-    { useUnifiedTopology: true },
-    (err, client) => {
-      // catch error if it exists
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
+const resumeCategories = [
+  "professional",
+  "projects",
+  "achievements",
+  "education"
+];
 
-      // find all collections
-      client
-        .db("resume")
-        .collections()
-        .then(result => {
-          // iterate over all collections
-          let cargo = {};
-          Promise.all(
-            result.map(collection => {
-              return collection
-                .find({})
-                .toArray()
-                .then(arr => {
-                  cargo[collection.collectionName] = arr;
-                });
-            })
-          ).then(() => {
-            res.header("Content-Type", "application/json");
-            res.status(200).send(JSON.stringify(cargo, null, 4));
-            client.close();
-          });
-        });
+const getResumeCategory = category => {
+  const dbName = "resume";
+  const sortRules = { startDate: -1, year: -1 };
+  return MongoClient.connect(mongoUrl, { useUnifiedTopology: true }).then(
+    client => {
+      // find collection
+      return client
+        .db(dbName)
+        .collection(category)
+        .find({})
+        .sort(sortRules)
+        .toArray();
     }
   );
+};
+
+const getResumeFull = () => {
+  const promises = resumeCategories.map(category => {
+    return getResumeCategory(category);
+  });
+  return Promise.all(promises);
+};
+
+/* Overall resume endpoint */
+app.get("/resume", (req, res) => {
+  getResumeFull()
+    .then(result => {
+      // reconstruct object with categories as indexing
+      const resultObj = {};
+      result.forEach((data, i) => {
+        resultObj[resumeCategories[i]] = data;
+      });
+      // send object
+      res.header("Content-Type", "application/json");
+      res.status(200).send(JSON.stringify(resultObj, null, 4));
+    })
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 });
 
 /* Resume category endpoints */
 app.get("/resume/:category", (req, res) => {
-  MongoClient.connect(
-    "mongodb://localhost:27017/",
-    { useUnifiedTopology: true },
-    (err, client) => {
-      // catch error if it exists
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-
-      // find collection
-      var collection = client.db("resume").collection(req.params.category);
-
-      collection.find({}).sort({"startDate": -1, "year": -1}).toArray((err, result) => {
-        if (err) throw err;
-        res.header("Content-Type", "application/json");
-        res.status(200).send(JSON.stringify(result, null, 4));
-        client.close();
-      });
-    }
-  );
+  const { category } = req.params;
+  getResumeCategory(category)
+    .then(result => {
+      res.header("Content-Type", "application/json");
+      res.status(200).send(JSON.stringify(result, null, 4));
+    })
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(500);
+    });
 });
 
 app.get("/", (req, res) => res.send("API endpoint"));
