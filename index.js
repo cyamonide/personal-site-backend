@@ -91,12 +91,14 @@ const getResumeCategory = category => {
   return MongoClient.connect(mongoUrl, { useUnifiedTopology: true }).then(
     client => {
       // find collection
-      return client
+      const retval = client
         .db(dbName)
         .collection(category)
         .find({})
         .sort(sortRules)
         .toArray();
+      client.close();
+      return retval;
     }
   );
 };
@@ -132,6 +134,7 @@ app.get("/resume/:category", (req, res) => {
   const { category } = req.params;
   getResumeCategory(category)
     .then(result => {
+      res.header("Access-Control-Allow-Origin", process.env.RESUME_URL);
       res.header("Content-Type", "application/json");
       res.status(200).send(JSON.stringify(result, null, 4));
     })
