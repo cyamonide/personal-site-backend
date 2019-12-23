@@ -15,10 +15,10 @@ module.exports = {
       },
       env_production: {
         NODE_ENV: "production",
-        HOME_URL: "https://cyamonide.me/",
-        API_URL: "https://api.cyamonide.me/",
-        NOTES_URL: "https://notes.cyamonide.me/",
-        RESUME_URL: "https://resume.cyamonide.me/",
+        HOME_URL: "https://cyamonide.me",
+        API_URL: "https://api.cyamonide.me",
+        NOTES_URL: "https://notes.cyamonide.me",
+        RESUME_URL: "https://resume.cyamonide.me",
         PORT: 3001
       }
     }
