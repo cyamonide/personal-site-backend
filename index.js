@@ -36,6 +36,18 @@ app.get("/documents/Resume%20-%20Simon%20Liu", (req, res) => {
   });
 });
 
+app.get("/ssh", (req, res) => {
+  const path = __dirname + "/public/ssh.sh";
+  fs.readFile(path, (err, data) => {
+    if (err) {
+      res.send(err.message);
+    } else {
+      res.contentType("text/plain");
+      res.send(data);
+    }
+  });
+});
+
 /* Webhooks endpoint */
 app.post("/webhooks/:repo", (req, res) => {
   // Verify secret
