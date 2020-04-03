@@ -42,7 +42,9 @@ app.get("/ssh/:filename", (req, res) => {
   fs.readFile(path, (err, data) => {
     if (err) {
       console.log(err.message);
-      res.status(404);
+      fs.readFile(__dirname + "/public/404.html", (err, data) => {
+        res.status(404).send(data);
+      });
     } else {
       res.contentType("text/plain");
       res.send(data);
