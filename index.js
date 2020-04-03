@@ -42,7 +42,7 @@ app.get("/ssh/:filename", (req, res) => {
   fs.readFile(path, (err, data) => {
     if (err) {
       console.log(err.message);
-      res.send("No such file");
+      res.status(404);
     } else {
       res.contentType("text/plain");
       res.send(data);
