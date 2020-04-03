@@ -36,20 +36,9 @@ app.get("/documents/Resume%20-%20Simon%20Liu", (req, res) => {
   });
 });
 
-app.get("/ssh/keygen", (req, res) => {
-  const path = __dirname + "/public/ssh/keygen.sh";
-  fs.readFile(path, (err, data) => {
-    if (err) {
-      res.send(err.message);
-    } else {
-      res.contentType("text/plain");
-      res.send(data);
-    }
-  });
-});
-
-app.get("/ssh/mbp16", (req, res) => {
-  const path = __dirname + "/public/ssh/mbp16.id_rsa.pub";
+app.get("/ssh/:filename", (req, res) => {
+  const { filename } = req.params;
+  const path = __dirname + "/public/ssh/" + filename;
   fs.readFile(path, (err, data) => {
     if (err) {
       res.send(err.message);
