@@ -8,9 +8,9 @@ const MongoClient = require("mongodb").MongoClient;
 
 const app = express();
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   req.pipe(
-    concat(function(data) {
+    concat(function (data) {
       req.body = data;
       next();
     })
@@ -41,7 +41,8 @@ app.get("/ssh/:filename", (req, res) => {
   const path = __dirname + "/public/ssh/" + filename;
   fs.readFile(path, (err, data) => {
     if (err) {
-      res.send(err.message);
+      console.log(err.message);
+      res.send("No such file");
     } else {
       res.contentType("text/plain");
       res.send(data);
@@ -95,14 +96,14 @@ const resumeCategories = [
   "professional",
   "projects",
   "achievements",
-  "education"
+  "education",
 ];
 
-const getResumeCategory = category => {
+const getResumeCategory = (category) => {
   const dbName = "resume";
   const sortRules = { startDate: -1, year: -1 };
   return MongoClient.connect(mongoUrl, { useUnifiedTopology: true }).then(
-    client => {
+    (client) => {
       // find collection
       const retval = client
         .db(dbName)
@@ -117,7 +118,7 @@ const getResumeCategory = category => {
 };
 
 const getResumeFull = () => {
-  const promises = resumeCategories.map(category => {
+  const promises = resumeCategories.map((category) => {
     return getResumeCategory(category);
   });
   return Promise.all(promises);
@@ -126,7 +127,7 @@ const getResumeFull = () => {
 /* Overall resume endpoint */
 app.get("/resume", (req, res) => {
   getResumeFull()
-    .then(result => {
+    .then((result) => {
       // reconstruct object with categories as indexing
       const resultObj = {};
       result.forEach((data, i) => {
@@ -136,7 +137,7 @@ app.get("/resume", (req, res) => {
       res.header("Content-Type", "application/json");
       res.status(200).send(JSON.stringify(resultObj, null, 4));
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       res.sendStatus(500);
     });
@@ -146,12 +147,12 @@ app.get("/resume", (req, res) => {
 app.get("/resume/:category", (req, res) => {
   const { category } = req.params;
   getResumeCategory(category)
-    .then(result => {
+    .then((result) => {
       res.header("Access-Control-Allow-Origin", process.env.RESUME_URL);
       res.header("Content-Type", "application/json");
       res.status(200).send(JSON.stringify(result, null, 4));
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
       res.sendStatus(500);
     });
