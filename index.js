@@ -90,11 +90,11 @@ app.post("/webhooks/:repo", (req, res) => {
       console.log("Installing dependencies...");
       exec(`yarn --cwd ../${repo} install`, (err, stdout, stderr) => {
         console.log(err ? stderr : stdout);
-      });
-      // Build project
-      console.log(`Building ${repo}...`);
-      exec(`yarn --cwd ../${repo} build`, (err, stdout, stderr) => {
-        console.log(err ? stderr : stdout);
+        // Build project
+        console.log(`Building ${repo}...`);
+        exec(`yarn --cwd ../${repo} build`, (err, stdout, stderr) => {
+          console.log(err ? stderr : stdout);
+        });
       });
     }
   });
