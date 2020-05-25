@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const safeCompare = require("safe-compare");
 const concat = require("concat-stream");
 const MongoClient = require("mongodb").MongoClient;
+const serverless = require('serverless-http');
 
 const app = express();
 
@@ -174,3 +175,5 @@ const port = process.env.PORT || 3001;
 app.listen(port, () =>
   console.log(`Personal site backend listening on port ${port}`)
 );
+
+export const handler = serverless(app);

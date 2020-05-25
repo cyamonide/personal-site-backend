@@ -25,6 +25,7 @@
     "express": "^4.17.1",
     "mongodb": "^3.3.5",
     "prettier": "^1.18.2",
-    "safe-compare": "^1.1.4"
+    "safe-compare": "^1.1.4",
+    "serverless-http": "^2.5.0"
   }
 }
